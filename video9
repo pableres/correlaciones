@@ -1,0 +1,42 @@
+#función ipak para instalar y llamar a varios paquetes a la vez
+
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# crear la lista de los paquetes a utilizar
+packages <- c("foreign","apaTables","PerformanceAnalytics","psych","corrr")
+
+#instalar y llamar los paquetes del listado anterior
+ipak(packages)
+
+#cargar el data frame que vamos a utilizar
+setwd('C:/Users/user/Desktop/Ejemplo R correlaciones')
+df<-read.spss("base datos spss correlaciones.sav", to.data.frame=TRUE)
+View(df)
+
+#crear matriz de correlaciones
+cor(df)
+
+#crear matriz de correlaciones sin NA
+df2<- df[complete.cases(df), ]
+
+#volver a crear la matriz de correlaciones (lo mismo que en SPSS)
+cor(df2)
+
+#crear un objeto que sea la propia matriz de correlaciones
+correlac<-cor(df2)
+
+#crear directaente la tabla de correlaciones en APA en formato word
+apa.cor.table(df2, filename = "chupitoR.doc", table.number = 2,show.conf.interval = FALSE, landscape = TRUE)
+
+#crar figura de correlaciones con histograma, diagrama de puntos.
+pairs.panels(df2, pch=20,stars=TRUE,main="Chupitos de R")
+
+#red de correlaciones
+df2 %>% 
+  correlate() %>% 
+  network_plot()
